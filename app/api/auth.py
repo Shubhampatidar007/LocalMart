@@ -182,12 +182,20 @@ async def login_submit(
     try:
         credentials = LoginPayload(email=email, password=password)
         user = await auth_service.authenticate(credentials.email, credentials.password)
+        session_id = await auth_service.create_session(user)
     except ValidationError:
         return _error(request, "Please enter a valid email and password.")
     except AuthError as exc:
         return _error(request, str(exc), status_code=401)
-
-    session_id = await auth_service.create_session(user)
+    except RuntimeError as exc:
+        if str(exc) == "Database is not available. Is MongoDB running?":
+            from app.utils.errors import DatabaseError
+            raise DatabaseError(
+                "MongoDB is unavailable during web login.",
+                operation="auth.login",
+                cause=exc,
+            ) from exc
+        raise
     response = _render(
         request, "success.html", title="Logged in successfully.",
         message="Open Telegram and press /start to continue.",
