@@ -18,7 +18,8 @@ class Settings(BaseSettings):
     PUBLIC_BASE_URL: str = "http://localhost:8000"
     LOG_LEVEL: str = "INFO"
     DEMO_MODE: bool = True
-    RUN_BOT: bool = True
+    RUN_BOT: bool = False
+    ENABLE_SCHEDULER: bool = False
 
     # ---------------- Telegram ----------------
     TELEGRAM_BOT_TOKEN: str = ""
