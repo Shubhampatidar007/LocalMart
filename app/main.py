@@ -54,10 +54,13 @@ async def lifespan(app: FastAPI):
             logger.error("Telegram bot failed to start: %s", exc)
 
     scheduler = None
-    try:
-        scheduler = start_scheduler()
-    except Exception as exc:
-        logger.warning("Scheduler failed to start: %s", exc)
+    # Background schedulers are opt-in. Request-based platforms may create
+    # multiple app instances, which would duplicate interval/cron jobs.
+    if settings.ENABLE_SCHEDULER:
+        try:
+            scheduler = start_scheduler()
+        except Exception as exc:
+            logger.warning("Scheduler failed to start: %s", exc)
 
     yield
 
